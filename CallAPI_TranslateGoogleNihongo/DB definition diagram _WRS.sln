@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DB definition diagram _WRS", "DB definition diagram _WRS\DB definition diagram _WRS.csproj", "{5ECB4ADD-BF1B-45CA-9CF1-17A8DB2DA1FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranslateJPENAssembly", "TranslateJPENAssembly\TranslateJPENAssembly.csproj", "{A6677024-BDE4-4D9D-AE78-362309D4255C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5ECB4ADD-BF1B-45CA-9CF1-17A8DB2DA1FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ECB4ADD-BF1B-45CA-9CF1-17A8DB2DA1FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ECB4ADD-BF1B-45CA-9CF1-17A8DB2DA1FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ECB4ADD-BF1B-45CA-9CF1-17A8DB2DA1FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6677024-BDE4-4D9D-AE78-362309D4255C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6677024-BDE4-4D9D-AE78-362309D4255C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6677024-BDE4-4D9D-AE78-362309D4255C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6677024-BDE4-4D9D-AE78-362309D4255C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

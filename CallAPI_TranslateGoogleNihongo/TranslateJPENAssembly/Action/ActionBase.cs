@@ -9,7 +9,8 @@ namespace Anh.Translate
 {
     public class ActionBase
     {
-        public static readonly string UrlTransalteGoogleWebAPI = ConfigurationManager.AppSettings["UrlTransalteGoogleWebAPI"] !=null? ConfigurationManager.AppSettings["UrlTransalteGoogleWebAPI"].ToString():"https://translate.google.com.vn/";
+        public static readonly string UrlTranslateGoogleWebAPI = ConfigurationManager.AppSettings["UrlTransalteGoogleWebAPI"] !=null? ConfigurationManager.AppSettings["UrlTransalteGoogleWebAPI"].ToString():"https://translate.google.com.vn/";
+        public static readonly string UrlPlayGoogleWebAPI = ConfigurationManager.AppSettings["UrlPlayGoogleWebAPI"] !=null? ConfigurationManager.AppSettings["UrlPlayGoogleWebAPI"].ToString(): "https://play.google.com/";
         public static readonly string UrlZenWebAPI = ConfigurationManager.AppSettings["UrlZenWebAPI"]!=null?ConfigurationManager.AppSettings["UrlZenWebAPI"].ToString(): "http://localhost/ZenWebAPI/api/";
         public static readonly string TKK = ConfigurationManager.AppSettings["TKK"] !=null?ConfigurationManager.AppSettings["TKK"].ToString(): "434288.3805658817";
 
