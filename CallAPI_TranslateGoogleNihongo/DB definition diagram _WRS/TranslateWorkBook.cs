@@ -19,8 +19,8 @@ namespace Anh.DB_definition_diagram__WRS
 	public partial class TranslateWorkBook : Form
 	{
 		public int _iMaxRequest = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("MaxRequest")) ? 200 : int.Parse(ConfigurationManager.AppSettings.Get("MaxRequest"));
-		public string _fromLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("SL")) ? "ja" : ConfigurationManager.AppSettings.Get("MaxRequest");
-		public string _toLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("TL")) ? "en" : ConfigurationManager.AppSettings.Get("MaxRequest");
+		public string _fromLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("SL")) ? "ja" : ConfigurationManager.AppSettings.Get("SL");
+		public string _toLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("TL")) ? "en" : ConfigurationManager.AppSettings.Get("TL");
 		public const string ecoEscapeBlank = "Moth";
 		private Dictionary<string, string> _dicTableName;
 		private string[] _arraySplitString = new string[] { "=", "＝", "||", "（+）", "(+)", "+", "-", "*", "/", " " };
@@ -348,7 +348,7 @@ namespace Anh.DB_definition_diagram__WRS
 				{
 					continue;
 				}
-				JArray jarr = await ActionF1.GetSingle(originalText,_fromLang,_toLang);
+				JArray jarr = await ActionF1.GetSingle(originalText, _fromLang, _toLang);
 				toolStripProgressBar1.Value = (int)((i + 1) * 100 / limit);
 				Thread.Sleep(480);
 				List<string> transateText = ActionF1.ReadJArrayRes(jarr);
@@ -475,8 +475,13 @@ namespace Anh.DB_definition_diagram__WRS
 				string sFileNameTarget = txtExcelName.Text;
 				IWorkbook xlBookTarget = SpreadsheetGear.Factory.GetWorkbook(sFileNameTarget);
 				string[] arraySheetName = ConfigurationManager.AppSettings.Get("ArraySheetConvert").Split(',');
+				int cSheet = xlBookTarget.Worksheets.Count;
 				cbSheetName.Items.Clear();
 				cbSheetName.ResetText();
+				numF.Value = 1;
+				numT.Value = 1;
+				numF.Maximum = cSheet;
+				numT.Maximum = cSheet;
 				foreach (IWorksheet xlXheet in xlBookTarget.Worksheets)
 				{
 					cbSheetName.Items.Add(xlXheet.Name);
@@ -549,12 +554,48 @@ namespace Anh.DB_definition_diagram__WRS
 					{
 						toolStripProgressBar1.Value = 1;
 						toolStripStatusLabel1.Text = "1/1 Sheet.";
-						toolStripStatusLabel2.Text = string.Format("{0} requests have been sent.", cc);
+						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
 						cc = await CreateTranslateSheet2(xlBookTarget.Worksheets[xlXheetNm], 0);
-						toolStripStatusLabel2.Text = string.Format("{0} requests have been sent.", cc);
+						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
 					}
 
 				}
+
+				if (rbRangeSheet.Checked)
+				{
+					int startSheet = (int)numF.Value;
+					int endSheet = (int)numT.Value < startSheet ? startSheet : (int)numT.Value;
+					int iNumSheet = endSheet - startSheet + 1;
+					List<string> sheetNames = new List<string>();
+					for (int im = 0; im < xlBookTarget.Worksheets.Count; im++)
+					{
+						if (im >= startSheet - 1 && im <= endSheet - 1)
+						{
+							sheetNames.Add(xlBookTarget.Worksheets[im].Name);
+						}
+
+					}
+					int iS = 0;
+					foreach (IWorksheet xlXheetNm in xlBookTarget.Worksheets)
+					{
+						if (sheetNames.IndexOf(xlXheetNm.Name) < 0)
+						{
+							continue;
+						}
+						iS++;
+						if (cc < 0 || cc >= _iMaxRequest)
+						{
+							break;
+						}
+						toolStripProgressBar1.Value = 1;
+						toolStripStatusLabel1.Text = string.Format("{0}/{1} Sheet.", iS, iNumSheet);
+						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
+						cc = await CreateTranslateSheet2(xlXheetNm, cc);
+						Thread.Sleep(1000 + 50 * iS);
+						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
+					}
+				}
+
 				if (rbAllSheet.Checked)
 				{
 					int iNumSheet = xlBookTarget.Worksheets.Count;
@@ -568,9 +609,10 @@ namespace Anh.DB_definition_diagram__WRS
 						}
 						toolStripProgressBar1.Value = 1;
 						toolStripStatusLabel1.Text = string.Format("{0}/{1} Sheet.", iS, iNumSheet);
-						toolStripStatusLabel2.Text = string.Format("{0} requests have been sent.", cc);
+						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
 						cc = await CreateTranslateSheet2(xlXheetNm, cc);
-						toolStripStatusLabel2.Text = string.Format("{0} requests have been sent.", cc);
+						Thread.Sleep(1000 + 50 * iS);
+						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
 					}
 				}
 				string sFilePath = Path.GetDirectoryName(txtExcelName.Text) + @"\" + Path.GetFileNameWithoutExtension(sFileNameTarget) + "_" + DateTime.Now.ToString("yyyyMMdd") + Path.GetExtension(sFileNameTarget);
@@ -635,12 +677,24 @@ namespace Anh.DB_definition_diagram__WRS
 		private void rbAllSheet_CheckedChanged(object sender, EventArgs e)
 		{
 			cbSheetName.Enabled = false;
+			numF.Enabled = false;
+			numT.Enabled = false;
 		}
 
 		private void rbSelectSheet_CheckedChanged(object sender, EventArgs e)
 		{
 			cbSheetName.Enabled = true;
+			numF.Enabled = false;
+			numT.Enabled = false;
 		}
+
+		private void rbRangeSheet_CheckedChanged(object sender, EventArgs e)
+		{
+			cbSheetName.Enabled = false;
+			numF.Enabled = true;
+			numT.Enabled = true;
+		}
+
 	}
 
 	internal static class Helper

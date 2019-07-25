@@ -42,8 +42,14 @@
 			this.rbAllSheet = new System.Windows.Forms.RadioButton();
 			this.label2 = new System.Windows.Forms.Label();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.rbRangeSheet = new System.Windows.Forms.RadioButton();
+			this.numF = new System.Windows.Forms.NumericUpDown();
+			this.numT = new System.Windows.Forms.NumericUpDown();
+			this.to = new System.Windows.Forms.Label();
 			this.statusStrip1.SuspendLayout();
 			this.panel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numF)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numT)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// openFileDialog1
@@ -72,10 +78,10 @@
 			// 
 			// btnPre
 			// 
-			this.btnPre.Location = new System.Drawing.Point(219, 113);
+			this.btnPre.Location = new System.Drawing.Point(196, 114);
 			this.btnPre.Name = "btnPre";
 			this.btnPre.Size = new System.Drawing.Size(75, 23);
-			this.btnPre.TabIndex = 7;
+			this.btnPre.TabIndex = 9;
 			this.btnPre.Text = "Translate";
 			this.btnPre.UseVisualStyleBackColor = true;
 			this.btnPre.Click += new System.EventHandler(this.btnPre_Click);
@@ -143,7 +149,7 @@
 			// rbAllSheet
 			// 
 			this.rbAllSheet.AutoSize = true;
-			this.rbAllSheet.Location = new System.Drawing.Point(97, 3);
+			this.rbAllSheet.Location = new System.Drawing.Point(203, 3);
 			this.rbAllSheet.Name = "rbAllSheet";
 			this.rbAllSheet.Size = new System.Drawing.Size(70, 16);
 			this.rbAllSheet.TabIndex = 1;
@@ -164,18 +170,69 @@
 			// 
 			// panel1
 			// 
+			this.panel1.Controls.Add(this.rbRangeSheet);
 			this.panel1.Controls.Add(this.rbSelectSheet);
 			this.panel1.Controls.Add(this.rbAllSheet);
 			this.panel1.Location = new System.Drawing.Point(104, 40);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(190, 28);
+			this.panel1.Size = new System.Drawing.Size(298, 28);
 			this.panel1.TabIndex = 3;
+			// 
+			// rbRangeSheet
+			// 
+			this.rbRangeSheet.AutoSize = true;
+			this.rbRangeSheet.Location = new System.Drawing.Point(112, 3);
+			this.rbRangeSheet.Name = "rbRangeSheet";
+			this.rbRangeSheet.Size = new System.Drawing.Size(55, 16);
+			this.rbRangeSheet.TabIndex = 2;
+			this.rbRangeSheet.TabStop = true;
+			this.rbRangeSheet.Text = "Range";
+			this.rbRangeSheet.UseVisualStyleBackColor = true;
+			this.rbRangeSheet.CheckedChanged += new System.EventHandler(this.rbRangeSheet_CheckedChanged);
+			// 
+			// numF
+			// 
+			this.numF.Enabled = false;
+			this.numF.Location = new System.Drawing.Point(241, 75);
+			this.numF.Name = "numF";
+			this.numF.Size = new System.Drawing.Size(46, 19);
+			this.numF.TabIndex = 6;
+			this.numF.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// numT
+			// 
+			this.numT.Enabled = false;
+			this.numT.Location = new System.Drawing.Point(323, 75);
+			this.numT.Name = "numT";
+			this.numT.Size = new System.Drawing.Size(46, 19);
+			this.numT.TabIndex = 8;
+			this.numT.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// to
+			// 
+			this.to.AutoSize = true;
+			this.to.Location = new System.Drawing.Point(298, 79);
+			this.to.Name = "to";
+			this.to.Size = new System.Drawing.Size(15, 12);
+			this.to.TabIndex = 7;
+			this.to.Text = "to";
 			// 
 			// TranslateWorkBook
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(474, 187);
+			this.Controls.Add(this.to);
+			this.Controls.Add(this.numT);
+			this.Controls.Add(this.numF);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.cbSheetName);
@@ -190,6 +247,8 @@
 			this.statusStrip1.PerformLayout();
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numF)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numT)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -210,6 +269,10 @@
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
 		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+		private System.Windows.Forms.RadioButton rbRangeSheet;
+		private System.Windows.Forms.NumericUpDown numF;
+		private System.Windows.Forms.NumericUpDown numT;
+		private System.Windows.Forms.Label to;
 	}
 }
 
