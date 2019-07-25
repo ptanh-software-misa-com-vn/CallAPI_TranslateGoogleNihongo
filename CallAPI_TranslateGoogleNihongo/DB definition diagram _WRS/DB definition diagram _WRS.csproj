@@ -94,14 +94,19 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Lib\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\TranslateJPENAssembly\TranslateJPENAssembly.csproj">
       <Project>{a6677024-bde4-4d9d-ae78-362309d4255c}</Project>
       <Name>TranslateJPENAssembly</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lib\Newtonsoft.Json.dll" />
+    <Content Include="Lib\Newtonsoft.Json.xml" />
+    <Content Include="Lib\SpreadsheetGear.dll" />
+    <Content Include="Lib\System.Net.Http.Formatting.dll" />
+    <Content Include="Lib\System.Net.Http.Formatting.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
