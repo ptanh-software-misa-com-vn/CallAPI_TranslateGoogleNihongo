@@ -142,7 +142,8 @@ namespace Anh.Translate
                      }
                      else if (2048 > h)
                      {
-                         es[f++] = h >> 6 | 192;
+                         es.Add(h >> 6 | 192);
+						 f++;
                      }
                      else if (55296 == (h & 64512) && g + 1 < a.Length && 56320 == (Convert.ToInt64(a[g + 1]) & 64512))
                      {

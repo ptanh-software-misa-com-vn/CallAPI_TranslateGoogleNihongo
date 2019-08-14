@@ -21,7 +21,8 @@ namespace Anh.DB_definition_diagram__WRS
 		public int _iMaxRequest = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("MaxRequest")) ? 200 : int.Parse(ConfigurationManager.AppSettings.Get("MaxRequest"));
 		public string _fromLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("SL")) ? "ja" : ConfigurationManager.AppSettings.Get("SL");
 		public string _toLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("TL")) ? "en" : ConfigurationManager.AppSettings.Get("TL");
-		public const string ecoEscapeBlank = "Moth";
+		public int _iMaxLenPerRequest = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("MaxLenPerRequest")) ? 1000 : int.Parse(ConfigurationManager.AppSettings.Get("MaxLenPerRequest"));
+		public const string ecoEscapeBlank = "'";
 		private Dictionary<string, string> _dicTableName;
 		private string[] _arraySplitString = new string[] { "=", "＝", "||", "（+）", "(+)", "+", "-", "*", "/", " " };
 		private bool _widthChange;
@@ -285,28 +286,28 @@ namespace Anh.DB_definition_diagram__WRS
 			IRange rMax = xlSheet.UsedRange;
 			int mC = rMax.Columns.ColumnCount;
 			int mR = rMax.Rows.RowCount;
-			const int maxLen = 4996;//5000 max tring google can translate per request
+			//5000 max tring google can translate per request (i will send request has maxlen enough small)
 			for (int j = 0; j < mC; j++)
 			{
 				IRange item = null;
-				int lenIR = 0, lenIRF = 0;
+				int lenIR = 0;
 				int i = 0, ist = 0;
 				while (i < mR)
 				{
 					ist = i;
-					while (lenIR < maxLen)
+					while (lenIR < _iMaxLenPerRequest)
 					{
 						if (i >= mR)
 						{
 							break;
 						}
 						item = rMax.Cells[i, j, i++, j];
-						lenIRF = lenIR;
 						lenIR = GetLength(lenIR, item);
 					}
-					if (lenIR > 5000)
+					if (lenIR > _iMaxLenPerRequest)
 					{
 						arRange.Add(rMax.Cells[ist, j, i - 1, j]);
+						lenIR = 0;
 					}
 					else if (lenIR > 0)
 					{
@@ -409,11 +410,11 @@ namespace Anh.DB_definition_diagram__WRS
 					{
 						l[i] = l[i] + ecoEscapeBlank;
 					}
-					sb.Append("（（" + l[i] + "））\n");
+					sb.Append("（（" + l[i].Trim().Trim('\n') + "））\n");
 				}
 				else
 				{
-					sb.Append(l[i] + "\n");
+					sb.Append(l[i].Trim().Trim('\n') + "\n");
 				}
 			}
 			string t = sb.ToString();
@@ -431,7 +432,7 @@ namespace Anh.DB_definition_diagram__WRS
 				{
 					if (item != null)
 					{
-						dt.Rows.Add(item.ToString());
+						dt.Rows.Add(item.ToString().TrimStart());
 					}
 					else
 					{
@@ -591,7 +592,7 @@ namespace Anh.DB_definition_diagram__WRS
 						toolStripStatusLabel1.Text = string.Format("{0}/{1} Sheet.", iS, iNumSheet);
 						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
 						cc = await CreateTranslateSheet2(xlXheetNm, cc);
-						Thread.Sleep(1000 + 50 * iS);
+						Thread.Sleep(1000 + 100 * iS);
 						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
 					}
 				}

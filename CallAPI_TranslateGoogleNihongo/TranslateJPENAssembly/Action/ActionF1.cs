@@ -14,7 +14,7 @@ namespace Anh.Translate
 {
 	public class ActionF1 : ActionBase
 	{
-		public const string ecoEscapeBlank = "Moth";
+		public const string ecoEscapeBlank = "'";
 		/// <summary>
 		/// Translate Single Text
 		/// </summary>
