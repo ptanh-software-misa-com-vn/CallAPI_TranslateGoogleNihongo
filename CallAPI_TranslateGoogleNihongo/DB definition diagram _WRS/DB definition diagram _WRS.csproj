@@ -37,7 +37,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="SpreadsheetGear">
+    <Reference Include="SpreadsheetGear, Version=6.0.3.158, Culture=neutral, PublicKeyToken=39c186f5904944ec, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\SpreadsheetGear.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -58,6 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TranslateWorkBook2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TranslateWorkBook2.Designer.cs">
+      <DependentUpon>TranslateWorkBook2.cs</DependentUpon>
+    </Compile>
     <Compile Include="TranslateWorkBook.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,6 +73,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="TranslateWorkBook2.resx">
+      <DependentUpon>TranslateWorkBook2.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TranslateWorkBook.resx">
       <DependentUpon>TranslateWorkBook.cs</DependentUpon>
     </EmbeddedResource>

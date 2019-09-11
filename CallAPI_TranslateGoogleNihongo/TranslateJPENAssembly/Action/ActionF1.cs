@@ -38,7 +38,7 @@ namespace Anh.Translate
 				using (var client = new HttpClient())
 				{
 					//specify to use TLS 1.2 as default connection
-					System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+					//System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
 					client.BaseAddress = new Uri(ActionBase.UrlTranslateGoogleWebAPI);
 					HttpRequestHeaders reqH = client.DefaultRequestHeaders;
 					Authen(ref reqH);
@@ -298,5 +298,70 @@ namespace Anh.Translate
 
 			return li;
 		}
-	}
+        public List<string> ReadJArrayRes2(JArray jj)
+        {
+            if (jj == null)
+            {
+                return null;
+            }
+            List<string> li = new List<string>();
+            bool bEndCell = false;
+            JToken j_0 = jj[0];
+            StringBuilder sb = new StringBuilder();
+            int iLen = j_0.Count();
+            for (int i = 0; i < iLen - 1; i++)
+            {
+                JToken item = j_0[i];
+                if (item != null)
+                {
+                    if (item[0] != null)
+                    {
+                        string j_0_0 = item[0].ToString();
+                        if (j_0_0.EndsWith("\n") || (i == iLen - 2))
+                        {
+                            bEndCell = true;
+                        }
+                        else
+                        {
+                            sb.Append(j_0_0);
+                        }
+
+                        if (bEndCell)
+                        {
+                            string[] rowppT = j_0_0.Split(new string[] { "\n" }, StringSplitOptions.None);
+                            string[] rowpp = new string[rowppT.Length > 1 ? rowppT.Length - 1: rowppT.Length];
+                            rowpp[0] = (rowppT[0] == "..." ? null : rowppT[0]);
+                            if (sb.Length > 0)
+                            {
+                             rowpp[0] = sb.ToString() + rowpp[0];
+                            }
+                            li.AddRange(rowpp);
+                            sb.Clear();
+                            bEndCell = false;
+                        }
+                    }
+
+                }
+            }
+            JToken spell = j_0[iLen-1];
+            if (spell[3]!=null)
+            {
+                string[] rowpp = spell[3].ToString().Split(new string[] { "..."}, StringSplitOptions.RemoveEmptyEntries);
+                int k = 0;
+                for (int i = 0; i < li.Count; i++)
+                {
+                    if (li[i]==null)
+                    {
+                        continue;
+                    }
+                    if (k < rowpp.Length)
+                    {
+                        li[i] = li[i] + "\n" + rowpp[k];
+                        k++;
+                    }
+                }
+            }
+            return li;
+        }
+    }
 }

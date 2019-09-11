@@ -16,9 +16,13 @@ using Newtonsoft.Json.Linq;
 
 namespace Anh.DB_definition_diagram__WRS
 {
-	public partial class TranslateWorkBook : Form
+	public partial class TranslateWorkBook2 : Form
 	{
-		public int _iMaxRequest = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("MaxRequest")) ? 200 : int.Parse(ConfigurationManager.AppSettings.Get("MaxRequest"));
+        const string startCellCode = "((";
+        const string startCellCode2 = "( (";
+        const string endCellCode = "))";
+        const string endCellCode2 = ") )";
+        public int _iMaxRequest = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("MaxRequest")) ? 200 : int.Parse(ConfigurationManager.AppSettings.Get("MaxRequest"));
 		public string _fromLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("SL")) ? "ja" : ConfigurationManager.AppSettings.Get("SL");
 		public string _toLang = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("TL")) ? "en" : ConfigurationManager.AppSettings.Get("TL");
 		public int _iMaxLenPerRequest = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("MaxLenPerRequest")) ? 1000 : int.Parse(ConfigurationManager.AppSettings.Get("MaxLenPerRequest"));
@@ -26,7 +30,7 @@ namespace Anh.DB_definition_diagram__WRS
 		private Dictionary<string, string> _dicTableName;
 		private string[] _arraySplitString = new string[] { "=", "＝", "||", "（+）", "(+)", "+", "-", "*", "/", " " };
 		private bool _widthChange;
-		public TranslateWorkBook()
+		public TranslateWorkBook2()
 		{
 			_dicTableName = new Dictionary<string, string>();
 			InitializeComponent();
@@ -92,12 +96,12 @@ namespace Anh.DB_definition_diagram__WRS
 		private void ConvertSheet(IWorksheet xlSheet, IWorkbook xlBookDB)
 		{
 			Dictionary<IRange, string[][]> dicS = ExtractDataSheet(xlSheet);
-			IWorksheet newSheet = xlSheet.CopyAfter(xlSheet) as IWorksheet;
-			newSheet.Name = xlSheet.Name + "_DB";
-			OutputDataToSheet(newSheet, dicS, xlBookDB);
+			//IWorksheet newSheet = xlSheet.CopyAfter(xlSheet) as IWorksheet;
+			//newSheet.Name = xlSheet.Name + "_DB";
+			OutputDataToSheet(xlSheet, dicS, xlBookDB);
 		}
 
-		private void OutputDataToSheet(IWorksheet newSheet, Dictionary<IRange, string[][]> dicS, IWorkbook xlBookDB)
+		private void OutputDataToSheet(IWorksheet currentSheet, Dictionary<IRange, string[][]> dicS, IWorkbook xlBookDB)
 		{
 			foreach (IRange whatIR in dicS.Keys)
 			{
@@ -135,7 +139,16 @@ namespace Anh.DB_definition_diagram__WRS
 					}
 
 				}
-				newSheet.Cells[addre].Value = resVal;
+                if (currentSheet.Cells[addre].Comment.ToString().Length > 0)
+                {
+                    resVal = currentSheet.Cells[addre].Comment.ToString() + Environment.NewLine + resVal;
+                    currentSheet.Cells[addre].ClearComments();
+                    currentSheet.Cells[addre].AddComment(resVal);
+                }
+                else
+                {
+	    			currentSheet.Cells[addre].AddComment(resVal);
+                }
 			}
 		}
 
@@ -272,10 +285,10 @@ namespace Anh.DB_definition_diagram__WRS
 		private async Task<int> CreateTranslateSheet2(IWorksheet xlSheet, int numPrevRequest)
 		{
 			List<IRange> arRange = ExtractTranslateDataSheet2(xlSheet);
-			IWorksheet newSheet = xlSheet.CopyAfter(xlSheet) as IWorksheet;
-			newSheet.Name = xlSheet.Name + "_EN";
-			int i = await TranslateSheet2(newSheet, arRange, numPrevRequest);
-			return i;
+			//IWorksheet newSheet = xlSheet.CopyAfter(xlSheet) as IWorksheet;
+			//newSheet.Name = xlSheet.Name + "_EN";
+			int i = await TranslateSheet2(xlSheet, arRange, numPrevRequest);            
+            return i;
 		}
 
 		private List<IRange> ExtractTranslateDataSheet2(IWorksheet xlSheet)
@@ -329,7 +342,7 @@ namespace Anh.DB_definition_diagram__WRS
 			return offLen + v.ToString().Length;
 		}
 
-		private async Task<int> TranslateSheet2(IWorksheet newSheet, List<IRange> arRange, int numPrevRequest)
+		private async Task<int> TranslateSheet2(IWorksheet currentSheet, List<IRange> arRange, int numPrevRequest)
 		{
 			ActionF1 ActionF1 = new ActionF1();
 			var ienum = arRange.AsEnumerable();
@@ -344,7 +357,7 @@ namespace Anh.DB_definition_diagram__WRS
 				whatIR = arRange[i];
 				//DataTable orgTa = whatIR.GetDataTable(SpreadsheetGear.Data.GetDataFlags.NoColumnHeaders); //error convert type double (set columntype = type of first cell
 				DataTable orgTa = GetTableFromIrange(whatIR);
-				string originalText = GetTextFromTable(orgTa);
+				string originalText = GetTextFromTable2(orgTa);
 				if (originalText.Length > 5000)
 				{
 					continue;
@@ -352,7 +365,7 @@ namespace Anh.DB_definition_diagram__WRS
 				JArray jarr = await ActionF1.GetSingle(originalText, _fromLang, _toLang);
 				toolStripProgressBar1.Value = (int)((i + 1) * 100 / limit);
 				Thread.Sleep(480);
-				List<string> transateText = ActionF1.ReadJArrayRes(jarr);
+				List<string> transateText = ActionF1.ReadJArrayRes2(jarr);
 				////fake start
 				//JArray jarr = await FakeTrans(originalText);
 				//List<string> transateText = null;
@@ -364,9 +377,34 @@ namespace Anh.DB_definition_diagram__WRS
 					for (int im = 0; im < traTa.Rows.Count; im++)
 					{
 						object vv = traTa.Rows[im][0];
-						if (vv != null && vv.ToString().Trim().Length > 0)
+                        string[] speStart = new string[] {"\n", "「" , "\"","“",};
+						if (vv != null && vv.ToString().Trim().Length > 1 
+                            && (System.Text.RegularExpressions.Regex.IsMatch(vv.ToString().Trim().Substring(0,1),@"[a-zA-Z0-9]") || speStart.Contains(vv.ToString().Substring(0,1))))
 						{
-							newSheet.Range[whatIR.Address].Cells[im, 0].Value = vv;
+                            if (currentSheet.Range[whatIR.Address].Cells[im, 0].Comment !=null)
+                            {
+                                vv = currentSheet.Range[whatIR.Address].Cells[im, 0].Comment.ToString() + Environment.NewLine + vv.ToString();
+                                currentSheet.Range[whatIR.Address].Cells[im, 0].ClearComments();
+                                currentSheet.Range[whatIR.Address].Cells[im, 0].AddComment(vv.ToString());
+                                IComment ic = currentSheet.Range[whatIR.Address].Cells[im, 0].Comment;
+                                using (Graphics g = this.CreateGraphics())
+                                {
+                                    string item = ic.ToString();
+                                    SizeF sizeF = g.MeasureString(item, Font);
+                                    ic.Shape.Width = sizeF.Width;
+                                }
+                            }
+                            else
+                            {
+                                currentSheet.Range[whatIR.Address].Cells[im, 0].AddComment(vv.ToString());
+                                IComment ic = currentSheet.Range[whatIR.Address].Cells[im, 0].Comment;
+                                using (Graphics g = this.CreateGraphics())
+                                {
+                                    string item = ic.ToString();
+                                    SizeF sizeF = g.MeasureString(item, Font);
+                                    ic.Shape.Width = sizeF.Width;
+                                }
+                            }
 						}
 					}
 				}
@@ -420,8 +458,69 @@ namespace Anh.DB_definition_diagram__WRS
 			string t = sb.ToString();
 			return t;
 		}
+        private string GetTextFromTable2(DataTable orgTa)
+        {
+            if (orgTa == null)
+            {
+                return null;
+            }
+            StringBuilder sb = new StringBuilder();            
+            for (int i = 0; i < orgTa.Rows.Count; i++)
+            {
+                string res = "";
+                DataRow r = orgTa.Rows[i];
+                if (r.IsNull(0) || r[0].ToString().Trim().Length == 0)
+                {
+                    if (i==0)
+                    {
+                        res = "。" + "\n";
+                    }
+                    else
+                    {
+                        res = "\n";
+                    }
+                }
+                else
+                {
+                    string[] artm = r[0].ToString().Split(new string[] { "\n","。" }, StringSplitOptions.RemoveEmptyEntries);
 
-		private DataTable GetTableFromIrange(IRange range)
+					if (artm.Length == 1)
+                    {
+						res = artm[0] + "。" + "\n";
+                    }
+                    else
+                    {
+						res = artm.Aggregate((m, n) => m + "、" + n);                        						
+						res = res + "。" + "\n";
+                    }
+                }
+                sb.Append(res);
+            }
+            //List<string> l = orgTa.AsEnumerable().Select((r) => r[0].ToString()).ToList();
+            //for (int i = 0; i < l.Count; i++)
+            //{
+            //    if (l[i].Trim() == "")
+            //    {
+            //        l[i] = ecoEscapeBlank;
+            //    }
+
+            //    if (l[i].Contains("\n"))
+            //    {
+            //        if (l[i].EndsWith("\n"))
+            //        {
+            //            l[i] = l[i] + ecoEscapeBlank;
+            //        }
+            //        sb.Append(startCellCode2 + l[i].Trim().Trim('\n') + endCellCode2 + "\n");
+            //    }
+            //    else
+            //    {
+            //        sb.Append(startCellCode2 + l[i].Trim().Trim('\n') + endCellCode2 + "\n");
+            //    }
+            //}
+            string t = sb.ToString();
+            return t;
+        }
+        private DataTable GetTableFromIrange(IRange range)
 		{
 			DataTable dt = new DataTable();
 			dt.Columns.Add("Column1", typeof(string));
@@ -454,7 +553,7 @@ namespace Anh.DB_definition_diagram__WRS
 			dt.Columns.Add(orgTa.Columns[0].ColumnName, typeof(string));
 			foreach (DataRow item in orgTa.Rows)
 			{
-				dt.Rows.Add(item[0]);
+				dt.Rows.Add("");
 			}
 			int iLen = Math.Min(orgtex.Count, dt.Rows.Count);
 			for (int i = 0; i < iLen; i++)
@@ -469,7 +568,7 @@ namespace Anh.DB_definition_diagram__WRS
 		private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			openFileDialog1.Filter = "xls files (*.xls)|*.xls|xlsx files (*.xlsx)|*.xlsx";
-            openFileDialog1.FilterIndex = 2;
+            openFileDialog1.FilterIndex = 1;
             DialogResult res = openFileDialog1.ShowDialog();
 			if (res == DialogResult.OK)
 			{
@@ -617,7 +716,7 @@ namespace Anh.DB_definition_diagram__WRS
 						toolStripStatusLabel2.Text = string.Format("{0} requests.", cc);
 					}
 				}
-				string sFilePath = Path.GetDirectoryName(txtExcelName.Text) + @"\" + Path.GetFileNameWithoutExtension(sFileNameTarget) + "_" + DateTime.Now.ToString("yyyyMMdd") + Path.GetExtension(sFileNameTarget);
+                string sFilePath = Path.GetDirectoryName(txtExcelName.Text) + @"\" + Path.GetFileNameWithoutExtension(sFileNameTarget) + "_" + DateTime.Now.ToString("yyyyMMdd") + Path.GetExtension(sFileNameTarget);
 				bool bW = Helper.CanReadFile(sFilePath);
 				if (!bW)
 				{
@@ -635,7 +734,7 @@ namespace Anh.DB_definition_diagram__WRS
 				if (bW)
 				{
 					//保存
-					xlBookTarget.SaveAs(sFilePath, FileFormat.OpenXMLWorkbook);
+					xlBookTarget.SaveAs(sFilePath, FileFormat.Excel8);
 				}
 				MessageBox.Show("Finished");
 			}
@@ -698,43 +797,5 @@ namespace Anh.DB_definition_diagram__WRS
 		}
 
 	}
-
-	internal static class Helper
-	{
-		const int ERROR_SHARING_VIOLATION = 32;
-		const int ERROR_LOCK_VIOLATION = 33;
-
-		public static bool IsFileLocked(Exception exception)
-		{
-			int errorCode = System.Runtime.InteropServices.Marshal.GetHRForException(exception) & ((1 << 16) - 1);
-			return errorCode == ERROR_SHARING_VIOLATION || errorCode == ERROR_LOCK_VIOLATION;
-		}
-
-		public static bool CanReadFile(string filePath)
-		{
-			//Try-Catch so we dont crash the program and can check the exception
-			try
-			{
-				//The "using" is important because FileStream implements IDisposable and
-				//"using" will avoid a heap exhaustion situation when too many handles  
-				//are left undisposed.
-				using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-				{
-					if (fileStream != null) fileStream.Close();  //This line is me being overly cautious, fileStream will never be null unless an exception occurs... and I know the "using" does it but its helpful to be explicit - especially when we encounter errors - at least for me anyway!
-				}
-			}
-			catch (IOException ex)
-			{
-				//THE FUNKY MAGIC - TO SEE IF THIS FILE REALLY IS LOCKED!!!
-				if (IsFileLocked(ex))
-				{
-					// do something, eg File.Copy or present the user with a MsgBox - I do not recommend Killing the process that is locking the file
-					return false;
-				}
-			}
-			finally
-			{ }
-			return true;
-		}
-	}
+	
 }

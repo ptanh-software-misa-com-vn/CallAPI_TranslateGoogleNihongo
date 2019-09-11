@@ -16,7 +16,8 @@ namespace Anh.DB_definition_diagram__WRS
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TranslateWorkBook());
+            //Application.Run(new TranslateWorkBook());
+            Application.Run(new TranslateWorkBook2());
         }
     }
 }
