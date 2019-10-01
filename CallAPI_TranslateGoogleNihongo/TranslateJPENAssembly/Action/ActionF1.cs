@@ -334,6 +334,11 @@ namespace Anh.Translate
                             if (sb.Length > 0)
                             {
                              rowpp[0] = sb.ToString() + rowpp[0];
+								//when first line is blank, tip: insert 「。。。」, than after translated return value = [. . .]
+								if (rowpp[0]== ". . .")
+								{
+									rowpp[0] = null;
+								}
                             }
                             li.AddRange(rowpp);
                             sb.Clear();

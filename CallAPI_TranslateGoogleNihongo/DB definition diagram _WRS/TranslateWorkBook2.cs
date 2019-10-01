@@ -484,7 +484,7 @@ namespace Anh.DB_definition_diagram__WRS
                 }
                 else
                 {
-                    string[] artm = r[0].ToString().Split(new string[] { "\n", "。。。" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] artm = r[0].ToString().Split(new string[] { "\n", "。" }, StringSplitOptions.RemoveEmptyEntries);
 
 					if (artm.Length == 1)
                     {
@@ -492,7 +492,7 @@ namespace Anh.DB_definition_diagram__WRS
                     }
                     else
                     {
-						res = artm.Aggregate((m, n) => m + "、" + n);
+						res = artm.Aggregate((m, n) => m + "。" + n);
 						res = res + "。。。" + "\n";
                     }
                 }
