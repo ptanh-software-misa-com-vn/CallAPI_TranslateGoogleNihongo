@@ -296,35 +296,49 @@ namespace Anh.DB_definition_diagram__WRS
 			int step = 0;
 			if (!int.TryParse(ConfigurationManager.AppSettings.Get("RowRange"), out step)) step = 10;
 			List<IRange> arRange = new List<IRange>();
-			IRange rMax = xlSheet.UsedRange;
-			int mC = rMax.Columns.ColumnCount;
-			int mR = rMax.Rows.RowCount;
+			IRange usedRange = xlSheet.UsedRange;
+			int maxColumnCount = usedRange.Columns.ColumnCount;
+			int maxRowCount = usedRange.Rows.RowCount;
 			//5000 max tring google can translate per request (i will send request has maxlen enough small)
-			for (int j = 0; j < mC; j++)
+			for (int columnOffset = 0; columnOffset < maxColumnCount; columnOffset++)
 			{
 				IRange item = null;
-				int lenIR = 0;
-				int i = 0, ist = 0;
-				while (i < mR)
+				int totalLen = 0;
+				int rowOffset = 0, iRowStartInRange = 0;
+				while (rowOffset < maxRowCount)
 				{
-					ist = i;
-					while (lenIR < _iMaxLenPerRequest)
+					iRowStartInRange = rowOffset;
+					while (totalLen < _iMaxLenPerRequest)
 					{
-						if (i >= mR)
+						//end of used row
+						if (rowOffset >= maxRowCount)
 						{
 							break;
 						}
-						item = rMax.Cells[i, j, i++, j];
-						lenIR = GetLength(lenIR, item);
+						//current cell
+						item = usedRange.Cells[rowOffset, columnOffset, rowOffset++, columnOffset];
+						totalLen = GetLength(totalLen, item);
 					}
-					if (lenIR > _iMaxLenPerRequest)
+					//total length received equal or greater than [config:max length per request]
+					if (totalLen >= _iMaxLenPerRequest)
 					{
-						arRange.Add(rMax.Cells[ist, j, i - 1, j]);
-						lenIR = 0;
+						if (rowOffset-1<iRowStartInRange)
+						{
+							item = usedRange.Cells[iRowStartInRange, columnOffset, iRowStartInRange, columnOffset];
+							rowOffset = iRowStartInRange + 1;
+						}
+						else
+						{
+							item = usedRange.Cells[iRowStartInRange, columnOffset, rowOffset - 1, columnOffset];
+						}
+						arRange.Add(item);
+						totalLen = 0;
 					}
-					else if (lenIR > 0)
+					else if (totalLen > 0)
 					{
-						arRange.Add(rMax.Cells[ist, j, i, j]);
+						item = usedRange.Cells[iRowStartInRange, columnOffset, rowOffset, columnOffset];
+						arRange.Add(item);
+						totalLen = 0;
 					}
 				}
 			}
@@ -377,33 +391,21 @@ namespace Anh.DB_definition_diagram__WRS
 					for (int im = 0; im < traTa.Rows.Count; im++)
 					{
 						object vv = traTa.Rows[im][0];
-                        string[] speStart = new string[] {"\n", "「" , "\"","“",};
-						if (vv != null && vv.ToString().Trim().Length > 1 
-                            && (System.Text.RegularExpressions.Regex.IsMatch(vv.ToString().Trim().Substring(0,1),@"[a-zA-Z0-9]") || speStart.Contains(vv.ToString().Substring(0,1))))
+                        //string[] speStart = new string[] {"\n", "「" , "\"","“",};
+						if (vv != null && vv.ToString().Trim().Length > 1)
+								//&& (System.Text.RegularExpressions.Regex.IsMatch(vv.ToString().Trim().Substring(0, 1), @"[a-zA-Z0-9]") || speStart.Contains(vv.ToString().Substring(0, 1))))
 						{
                             if (currentSheet.Range[whatIR.Address].Cells[im, 0].Comment !=null)
                             {
-                                vv = currentSheet.Range[whatIR.Address].Cells[im, 0].Comment.ToString() + Environment.NewLine + vv.ToString();
-                                currentSheet.Range[whatIR.Address].Cells[im, 0].ClearComments();
-                                currentSheet.Range[whatIR.Address].Cells[im, 0].AddComment(vv.ToString());
-                                IComment ic = currentSheet.Range[whatIR.Address].Cells[im, 0].Comment;
-                                using (Graphics g = this.CreateGraphics())
-                                {
-                                    string item = ic.ToString();
-                                    SizeF sizeF = g.MeasureString(item, Font);
-                                    ic.Shape.Width = sizeF.Width;
-                                }
+								currentSheet.Range[whatIR.Address].Cells[im, 0].ClearComments();
                             }
-                            else
+                            currentSheet.Range[whatIR.Address].Cells[im, 0].AddComment(vv.ToString());
+                            IComment ic = currentSheet.Range[whatIR.Address].Cells[im, 0].Comment;
+                            using (Graphics g = this.CreateGraphics())
                             {
-                                currentSheet.Range[whatIR.Address].Cells[im, 0].AddComment(vv.ToString());
-                                IComment ic = currentSheet.Range[whatIR.Address].Cells[im, 0].Comment;
-                                using (Graphics g = this.CreateGraphics())
-                                {
-                                    string item = ic.ToString();
-                                    SizeF sizeF = g.MeasureString(item, Font);
-                                    ic.Shape.Width = sizeF.Width;
-                                }
+                                string item = ic.ToString();
+                                SizeF sizeF = g.MeasureString(item, Font);
+                                ic.Shape.Width = sizeF.Width;
                             }
 						}
 					}
@@ -473,7 +475,7 @@ namespace Anh.DB_definition_diagram__WRS
                 {
                     if (i==0)
                     {
-                        res = "。" + "\n";
+                        res = "。。。" + "\n";
                     }
                     else
                     {
@@ -482,16 +484,16 @@ namespace Anh.DB_definition_diagram__WRS
                 }
                 else
                 {
-                    string[] artm = r[0].ToString().Split(new string[] { "\n","。" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] artm = r[0].ToString().Split(new string[] { "\n", "。。。" }, StringSplitOptions.RemoveEmptyEntries);
 
 					if (artm.Length == 1)
                     {
-						res = artm[0] + "。" + "\n";
+						res = artm[0] + "。。。" + "\n";
                     }
                     else
                     {
-						res = artm.Aggregate((m, n) => m + "、" + n);                        						
-						res = res + "。" + "\n";
+						res = artm.Aggregate((m, n) => m + "、" + n);
+						res = res + "。。。" + "\n";
                     }
                 }
                 sb.Append(res);
