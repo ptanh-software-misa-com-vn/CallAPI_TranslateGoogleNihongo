@@ -348,24 +348,27 @@ namespace Anh.Translate
 
                 }
             }
-            JToken spell = j_0[iLen-1];
-            if (spell[3]!=null)
-            {
-                string[] rowpp = spell[3].ToString().Split(new string[] { "..."}, StringSplitOptions.RemoveEmptyEntries);
-                int k = 0;
-                for (int i = 0; i < li.Count; i++)
-                {
-                    if (li[i]==null)
-                    {
-                        continue;
-                    }
-                    if (k < rowpp.Length)
-                    {
-                        li[i] = li[i] + "\n" + rowpp[k];
-                        k++;
-                    }
-                }
-            }
+			if (_bOutputPronunciation)
+			{
+				JToken spell = j_0[iLen-1];
+				if (spell[3]!=null)
+				{
+					string[] rowpp = spell[3].ToString().Split(new string[] { "..."}, StringSplitOptions.RemoveEmptyEntries);
+					int k = 0;
+					for (int i = 0; i < li.Count; i++)
+					{
+						if (li[i]==null)
+						{
+							continue;
+						}
+						if (k < rowpp.Length)
+						{
+							li[i] = li[i] + "\n" + rowpp[k];
+							k++;
+						}
+					}
+				}
+			}
             return li;
         }
     }

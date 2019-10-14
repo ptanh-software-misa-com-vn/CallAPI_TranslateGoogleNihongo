@@ -30,12 +30,19 @@ namespace Anh.DB_definition_diagram__WRS
 		private Dictionary<string, string> _dicTableName;
 		private string[] _arraySplitString = new string[] { "=", "＝", "||", "（+）", "(+)", "+", "-", "*", "/", " " };
 		private bool _widthChange;
-		public TranslateWorkBook2()
+        private Dictionary<string, string> jFuteikiKoumoku = new Dictionary<string, string>();
+        public TranslateWorkBook2()
 		{
 			_dicTableName = new Dictionary<string, string>();
 			InitializeComponent();
 			_widthChange = false;
-		}
+            string sFuteikiKoumoku = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("FuteikiKoumoku")) ? "" : ConfigurationManager.AppSettings.Get("FuteikiKoumoku");
+            if (sFuteikiKoumoku.Length > 0)
+            {
+                jFuteikiKoumoku = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(sFuteikiKoumoku);
+            }
+
+        }
 
 		private void btnConvert_Click(object sender, EventArgs e)
 		{
@@ -527,13 +534,35 @@ namespace Anh.DB_definition_diagram__WRS
 			DataTable dt = new DataTable();
 			dt.Columns.Add("Column1", typeof(string));
 			object[,] arr = range.Value as object[,];
-			if (arr != null)
+            StringBuilder sbData = new StringBuilder();
+            bool hasFuteikiKoumoku = false;
+            if (arr != null)
 			{
 				foreach (var item in arr)
 				{
 					if (item != null)
 					{
-						dt.Rows.Add(item.ToString().TrimStart());
+                        hasFuteikiKoumoku = false;
+                        string sData = item.ToString().TrimStart();
+                        foreach (var spFuteikiKoumoku in jFuteikiKoumoku.Keys)
+                        {
+                            if (sData.EndsWith(spFuteikiKoumoku))
+                            {
+                                sbData.Clear();
+                                sbData.Append(sData.Substring(0, sData.Length - spFuteikiKoumoku.Length));
+                                sbData.Append(jFuteikiKoumoku[spFuteikiKoumoku]);
+                                hasFuteikiKoumoku = true;
+                                break;
+                            }
+                        }
+                        if (hasFuteikiKoumoku)
+                        {
+                            dt.Rows.Add(sbData.ToString());
+                        }
+                        else
+                        {
+                            dt.Rows.Add(item.ToString().TrimStart());
+                        }
 					}
 					else
 					{

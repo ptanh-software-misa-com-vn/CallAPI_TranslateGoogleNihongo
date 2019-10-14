@@ -13,8 +13,9 @@ namespace Anh.Translate
         public static readonly string UrlPlayGoogleWebAPI = ConfigurationManager.AppSettings["UrlPlayGoogleWebAPI"] !=null? ConfigurationManager.AppSettings["UrlPlayGoogleWebAPI"].ToString(): "https://play.google.com/";
         public static readonly string UrlZenWebAPI = ConfigurationManager.AppSettings["UrlZenWebAPI"]!=null?ConfigurationManager.AppSettings["UrlZenWebAPI"].ToString(): "http://localhost/ZenWebAPI/api/";
         public static readonly string TKK = ConfigurationManager.AppSettings["TKK"] !=null?ConfigurationManager.AppSettings["TKK"].ToString(): "434288.3805658817";
+		public static bool _bOutputPronunciation = string.IsNullOrEmpty(ConfigurationManager.AppSettings.Get("OutputPronunciation")) ? true : bool.Parse(ConfigurationManager.AppSettings.Get("OutputPronunciation"));
 
-        public static string GetTk(string transateText)
+		public static string GetTk(string transateText)
         {
             /*
              javascript translate_m_vi.js
